@@ -1,78 +1,89 @@
 var express = require('express');
 var router = express.Router();
 
-const anaSayfa = function(req, res, next) {
-    res.render("anasayfa", {
-        'baslik' : "Ansayfa",
-        'sayfaBaslik' :{
-        'siteAd' : 'Mekanbul',
-        'slogan' : 'Civardaki Mekanları Keşfet!'
+const anaSayfa=function(req, res, next) {
+    res.render('anasayfa',
+    {
+    "baslik":"Anasayfa",
+     "sayfabaslik":{
+        "siteAd":"MekanBul",
+        "Slogan":"Civardaki Mekanları keşfet!"
+     },   
+     "mekanlar":[
+        {
+            "ad":"Starbucks",
+            "puan":"3",
+            "adres":"Centrum Garden Avm",
+            "imkanlar":["Dunya Kahveleri","Cay","Kek"],
+            "mesafe":"10km"
         },
-        'mekanlar':[
-            {
-                'ad' : 'Starbucks',
-                'adres' : 'Centrium Garden AVM',
-                'puan' : '4',
-                'imkanlar' : ['Dünya Kahveleri','Kekler','Pastalar'],
-                'mesafe' : '10km'
-            }
-            ,
-            {
-                'ad' : 'Gloria Jeans',
-                'adres' : 'SDÜ Doğu Kampüsü',
-                'puan' : '3',
-                'imkanlar' : ['Kahve','Çay','Pasta'],
-                'mesafe' : '5km'
-            }           
-        ]
-    } 
+        {
+            "ad":"Barida Kafe",
+            "puan":"1",
+            "adres":"Sdu batı kampusu",
+            "imkanlar":["Tost","Cay","Kahve"],
+            "mesafe":"1km"
+        },
+        
+     ]
+    }
     );
-};
-const mekanBilgisi = function(req, res, next) {
-    res.render('mekanbilgisi', {
-        'baslik' : 'Mekan Bilgisi',
-        'mekanBaslik' : 'Starbucks',
-        'mekanDetay' : {
-            'ad' : 'Starbucks',
-            'adres' : 'Centrium Garden AVM',
-            'puan' : '4',
-            'imkanlar' : ['Dünya Kahveleri','Kekler','Pastalar'],
-            'koordinatlar' : {
-                'enlem' : '37.7',
-                'boylam' : '30.5'
-            },
-            'saatler' : [
-                {   
-                    'gunler' : 'Pazartesi-Cuma',
-                    'acilis' : '9.00',
-                    'kapanis': '23.00',
-                    'kapali' : false
+}
+const mekanBilgisi=function(req, res, next) {
+    res.render('mekanbilgisi',
+    {  
+        "baslik":"Mekan Bilgisi",
+        "mekanBaslik":"Starbucks",
+        "mekanDetay":{
+            "ad":"Starbucks",
+            "puan":"3",
+            "adres":"Centrum Garden Avm",
+            "saatler":[
+                {
+                "gunler":"Pazartesi-Cuma",
+                "acilis":"9:00",
+                "kapanis":"23:00",
+                "kapali":false
                 },
                 {
-                    'gunler' : 'Cumartesi-Pazar',
-                    'acilis' : '10.00',
-                    'kapanis': '22.00',
-                    'kapali' : false
+                    "gunler":"Cumartesi-Pazar",
+                    "acilis":"9:00",
+                    "kapanis":"21:00",
+                    "kapali":false
                 }
             ],
-            'yorumlar' : [
+            "imkanlar":[
+                "kahve","Çay","Kek"
+            ],
+            "koordinatlar":{
+                "enlem":"37.7",
+                "boylam":"30.5"
+            },
+            "yorumlar":[
                 {
-                    'yorumYapan' : 'Hilmi İhsan Demir',
-                    'puan' : '4',
-                    'tarih' : '20 Ekim 2022',
-                    'yorumMetni' : 'Kahveler gayet güzeldi.'
+                    "yorumYapan":"Emre BULUN",
+                    "yorumMetini":"Berbattı.",
+                    "tarih":"26 Ekim 2022",
+                    "puan":"1"
+                },
+                {
+                    "yorumYapan":"Asım Sinan Yüksel",
+                    "yorumMetini":"Güzeldi",
+                    "tarih":"05 Aralık 2021",
+                    "puan":"5"
                 }
             ]
         }
     }
+    
     );
 }
-const yorumEkle = (req, res, next) => {
-    res.render("yorumekle", { title: "Yorum ekle" });
-};
+const yorumEkle=function(req, res, next) {
+    res.render('yorumekle', { title: 'Yorum Ekle' });
+}
 
-module.exports = {
+module.exports={
     anaSayfa,
     mekanBilgisi,
-    yorumEkle,
-};
+    yorumEkle
+}
