@@ -12,7 +12,7 @@ router
 router
 .route("/mekanlar")
 .get(ctrlMekanlar.mekanlariListele)
-
+.post(ctrlMekanlar.mekanEkle)
 
 router
 .route("/mekanlar/:mekanid/yorumlar")
