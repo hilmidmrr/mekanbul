@@ -1,84 +1,111 @@
-const anaSayfa=function(req, res) {
-    res.render('anasayfa',{ 
-    //buraları çift tırnakta yaz, json ile ilgili olunca çift tırnak olacakmış
-      "baslik": "Anasayfa",
-      "sayfaBaslik":{
-        "siteAd":"MekanBul",
-        "slogan":"Civardaki Mekanları Keşfet!"
-      },
-      "mekanlar":[
-        {
-          "ad":"Starbucks",
-          "puan":"3",
-          "adres":"Centrum Garden AVM",
-          "imkanlar":["Dünya Kahveleri","Kurabiyeler"],
-          "mesafe":"10 km"
-        },
-        {
-          "ad":"Taş Kafe",
-          "puan":"4",
-          "adres":"SDÜ Batı Kampüsü",
-          "imkanlar":["Çorba","Kahvaltı"],
-          "mesafe":"1 km"
-        }
-      ]
+const axios=require("axios");
+var apiSecenekleri ={
+    sunucu: "http://localhost:3000",
+    //sunucu: "https://mekanbul.hilmidmrr.repl.co",
+    apiYolu: "/api/mekanlar/",
+};
+var express = require('express');
+var router = express.Router();
+
+var mesafeyiFormatla=function(mesafe){
+    var yeniMesafe,birim;
+    if(mesafe>1){
+        yeniMesafe=parseFloat(mesafe).toFixed(1);
+        birim=" km";
     }
-    );
-  }
-  
-  const mekanBilgisi=function(req, res) {
-    res.render('mekanbilgisi', 
-      { 
-        'baslik': 'Mekan Bilgisi',
-        "mekanBaslik":"Starbucks",
-        "mekanDetay":{
-          "ad":"Starbucks",
-          "puan":"3",
-          "adres":"Centrum Garden AVM",
-          "saatler":[
-          {
-            "gunler":"Pazartesi-Cuma",
-            "acilis":"07:00",
-            "kapanis":"23:00",
-            "kapali":false
-          },
-          {
-            "gunler":"Cumartesi-Pazar",
-            "acilis":"09:00",
-            "kapanis":"22:00",
-            "kapali":false
-          }
-        ],
-        "imkanlar":["Dünya Kahveleri","Kurabiyeler"],
-          "koordinatlar":{
-            "enlem":"37.7",
-            "boylam":"30.5"
-          },
-          "yorumlar":[
-            {
-              "yorumYapan":"Hilmi İhsan Demir",
-              "yorumMetni":"Güzeldi",
-              "yorumTarihi":"20 Ekim 2022",
-              "puan":"4"
-            },
-            {
-              "yorumYapan":"Asım Sinan Yüksel",
-              "yorumMetni":"İdare eder.",
-              "yorumTarihi":"20 Ekim 2022",
-              "puan":"3"
-            }
-          ]
+    else{
+        yeniMesafe=parseInt(mesafe*1000,10);
+        birim=" m";
+    }
+    return yeniMesafe+birim;
+};
+
+var anaSayfaOlustur=function(res,mekanListesi){
+    var mesaj;
+    if(!(mekanListesi instanceof Array)){
+        mesaj="!!API HATASI!!";
+        mekanListesi=[];
+    }
+    else{
+        if(!mekanListesi.length){
+            mesaj="Civarda herhangi bir mekan yok";
         }
-      });
-  }
-  
-  const yorumEkle=function(req, res) {
-    res.render('yorumekle', { 'title': 'Yorum Ekle' });
-  }
-  
-  //modules.export içine yazılan dış dunyaya acılır
-  module.exports={
-  anaSayfa,
-  mekanBilgisi,
-  yorumEkle,
-  };
+    }
+    res.render("anasayfa",{
+        "baslik":"Anasayfa",
+        "sayfaBaslik":{
+            "siteAd":"Mekanbul",
+            "sloagan":"Mekanları Keşfet",
+        },
+        "mekanlar":mekanListesi,
+        "mesaj":mesaj,
+    });
+};
+
+
+const anaSayfa=function(req, res, next) {
+    axios.get(apiSecenekleri.sunucu+apiSecenekleri.apiYolu,{
+        params:{
+            enlem:req.query.enlem,
+            boylam:req.query.boylam,
+        }
+    }).then(function(response){
+        var i,mekanlar;
+        mekanlar=response.data;
+        for(i=0;i<mekanlar.length;i++){
+            mekanlar[i].mesafe=mesafeyiFormatla(mekanlar[i].mesafe);
+        }
+        anaSayfaOlustur(res,mekanlar);
+    }).catch(function(hata){
+        anaSayfaOlustur(res,hata);
+    });
+};
+var detaySayfasiOlustur = function(res,mekanDetaylari){
+    mekanDetaylari.koordinat={
+        "enlem":mekanDetaylari.koordinat[0],
+        "boylam":mekanDetaylari.koordinat[1],
+    }
+    res.render('mekanbilgisi',
+    {
+        mekanBaslik: mekanDetaylari.ad,
+        mekanDetay: mekanDetaylari
+    });
+}
+var hataGoster = function(res,hata){
+    var mesaj;
+    if(hata.response.status==404){
+        mesaj="404, Sayfa Bulunamadı!";
+    }
+    else{
+        mesaj=hata.response.status + " hatası";
+    }
+    res.status(hata.response.status);
+    res.render('error',{
+        "mesaj":mesaj
+    });
+};
+
+const mekanBilgisi=function(req, res) {
+  axios
+    .get(apiSecenekleri.sunucu + apiSecenekleri.apiYolu + req.params.mekanid)
+    .then(function(response){
+        detaySayfasiOlustur(res,response.data);
+    })
+    .catch(function(hata){
+        hataGoster(res,hata);
+    });
+};
+
+const yorumEkle=function(req, res, next) {
+    res.render('yorumekle', { title: 'Yorum Ekle' });
+};
+
+
+
+
+module.exports={
+    anaSayfa,
+    mekanBilgisi,
+    yorumEkle,
+
+};
