@@ -1,7 +1,7 @@
 const axios=require("axios");
 var apiSecenekleri ={
-    sunucu: "http://localhost:3000",
-    //sunucu: "https://mekanbul.hilmidmrr.repl.co",
+    //sunucu: "http://localhost:3000",
+    sunucu: "https://mekanbul.hilmidmrr.repl.co",
     apiYolu: "/api/mekanlar/",
 };
 var express = require('express');
